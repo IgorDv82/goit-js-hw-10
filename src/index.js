@@ -4,9 +4,9 @@ const selectEl = document.querySelector('.breed-select');
 const infoEl = document.querySelector('.cat-info');
 const loaderEl = document.querySelector('.loader');
 infoEl.setAttribute('style', 'width: 100%; display: flex; gap: 15px ');
-
+selectEl.setAttribute('style', 'display: none');
 fetchBreeds().then(data => renderOptionToSelect(data));
-
+selectEl.setAttribute('style', 'display: block');
 function renderOptionToSelect(data) {
   selectEl.innerHTML = data
     .map(({ id, name }) => `<option value="${id}">${name}</option>`)
