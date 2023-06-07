@@ -1,12 +1,22 @@
+import { Report } from 'notiflix/build/notiflix-report-aio';
 import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
+import './CSS/Style.css';
 
 const selectEl = document.querySelector('.breed-select');
 const infoEl = document.querySelector('.cat-info');
-const loaderEl = document.querySelector('.loader');
-infoEl.setAttribute('style', 'width: 100%; display: flex; gap: 15px ');
-selectEl.setAttribute('style', 'display: none');
-fetchBreeds().then(data => renderOptionToSelect(data));
-selectEl.setAttribute('style', 'display: block');
+const loaderEl = document.querySelector('.load');
+
+hiddenSelect();
+
+fetchBreeds()
+  .then(data => {
+    renderOptionToSelect(data);
+    showSelect();
+  })
+  .catch(err =>
+    Report.failure('Oops!', 'Something went wrong! Try reloading the page!')
+  );
+
 function renderOptionToSelect(data) {
   selectEl.innerHTML = data
     .map(({ id, name }) => `<option value="${id}">${name}</option>`)
@@ -15,9 +25,19 @@ function renderOptionToSelect(data) {
 
 function onInput(evt) {
   const catId = evt.currentTarget.value;
-  fetchCatByBreed(catId).then(data => {
-    createMarkup(...data);
-  });
+  infoEl.innerHTML = '';
+  loaderEl.classList.remove('is-hidden');
+  fetchCatByBreed(catId)
+    .then(data => {
+      {
+        createMarkup(...data);
+        loaderEl.classList.add('is-hidden');
+      }
+    })
+    .catch(err => {
+      loaderEl.classList.add('is-hidden');
+      Report.failure('Oops!', 'Something went wrong! Try reloading the page!');
+    });
 }
 
 function createMarkup({ url, breeds }) {
@@ -29,3 +49,13 @@ function createMarkup({ url, breeds }) {
     .join('');
 }
 selectEl.addEventListener('input', onInput);
+
+function hiddenSelect() {
+  selectEl.classList.add('is-hidden');
+  loaderEl.classList.remove('is-hidden');
+}
+
+function showSelect() {
+  selectEl.classList.remove('is-hidden');
+  loaderEl.classList.add('is-hidden');
+}
